@@ -1,6 +1,5 @@
 import argparse
 
-from models.dense_net import DenseNet
 from data_providers.utils import get_data_provider_by_name
 from models.smooth_net import SmoothNet
 
@@ -47,8 +46,8 @@ if __name__ == '__main__':
              'If provided together with `--train` flag testing will be'
              'performed right after training.')
     parser.add_argument(
-        '--model_type', '-m', type=str, choices=['DenseNet', 'DenseNet-BC'],
-        default='DenseNet',
+        '--model_type', '-m', type=str, choices=['SmoothNet', 'SmoothNet-RN'],
+        default='SmoothNet',
         help='What type of model to use')
     parser.add_argument(
         '--growth_rate', '-k', type=int, choices=[24, 36, 48, 60, 72],
@@ -116,11 +115,10 @@ if __name__ == '__main__':
             args.keep_prob = 0.8
         else:
             args.keep_prob = 1.0
-    if args.model_type == 'DenseNet':
-        args.bc_mode = False
-        args.reduction = 1.0
-    elif args.model_type == 'DenseNet-BC':
-        args.bc_mode = True
+    if args.model_type == 'SmoothNet':
+        args.resnet_mode = False
+    elif args.model_type == 'SmoothNet-RN':
+        args.resnet_mode = True
 
     model_params = vars(args)
 

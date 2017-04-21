@@ -18,8 +18,7 @@ class SmoothNet:
                  weight_decay, nesterov_momentum, model_type, dataset,
                  should_save_logs, should_save_model,
                  renew_logs=False,
-                 reduction=1.0,
-                 bc_mode=False,
+                 resnet_mode=False,
                  **kwargs):
         """
         Class to implement networks from this paper
@@ -57,20 +56,16 @@ class SmoothNet:
         self.first_output_features = growth_rate * 2
         self.total_blocks = total_blocks
         self.layers_per_block = (depth - (total_blocks + 1)) // total_blocks
-        self.bc_mode = bc_mode
+        self.resnet_mode = resnet_mode
         # compression rate at the transition layers
-        self.reduction = reduction
-        if not bc_mode:
+        if not resnet_mode:
             print("Build %s model with %d blocks, "
                   "%d composite layers each." % (
                       model_type, self.total_blocks, self.layers_per_block))
-        if bc_mode:
-            self.layers_per_block = self.layers_per_block // 2
+        if resnet_mode:
             print("Build %s model with %d blocks, "
-                  "%d bottleneck layers and %d composite layers each." % (
-                      model_type, self.total_blocks, self.layers_per_block,
-                      self.layers_per_block))
-        print("Reduction at transition layers: %.1f" % self.reduction)
+                  "%d composite layers each and ResNet connections." % (
+                      model_type, self.total_blocks, self.layers_per_block))
 
         self.keep_prob = keep_prob
         self.weight_decay = weight_decay
@@ -219,13 +214,14 @@ class SmoothNet:
         input with output from composite function.
         """
         # call composite function with 3x3 kernel
-        if not self.bc_mode:
+        if self.resnet_mode:
+            last = _input[:, :, :, -self.growth_rate:]
+            comp_out = last + self.composite_function(
+                _input, out_features=growth_rate, kernel_size=3)
+        else:
             comp_out = self.composite_function(
                 _input, out_features=growth_rate, kernel_size=3)
-        elif self.bc_mode:
-            bottleneck_out = self.bottleneck(_input, out_features=growth_rate)
-            comp_out = self.composite_function(
-                bottleneck_out, out_features=growth_rate, kernel_size=3)
+
         # concatenate _input with out from composite function
         if TF_VERSION >= 1.0:
             output = tf.concat(axis=3, values=(_input, comp_out))
