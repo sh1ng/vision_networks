@@ -51,7 +51,7 @@ if __name__ == '__main__':
         default='DenseNet',
         help='What type of model to use')
     parser.add_argument(
-        '--growth_rate', '-k', type=int, choices=[20, 30, 40, 50, 60, 70],
+        '--growth_rate', '-k', type=int, choices=[24, 36, 48, 60, 72],
         default=20,
         help='Grows rate for every layer, '
              'choices were restricted to used in paper')
