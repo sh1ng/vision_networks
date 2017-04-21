@@ -51,12 +51,12 @@ if __name__ == '__main__':
         help='What type of model to use')
     parser.add_argument(
         '--growth_rate', '-k', type=int, choices=[24, 36, 48, 60, 72],
-        default=20,
+        default=24,
         help='Grows rate for every layer, '
              'choices were restricted to used in paper')
     parser.add_argument(
         '--look_back', '-lb', type=int, choices=[2, 3, 4, 5, 6, 7, 8, 9, 10],
-        default=2,
+        default=6,
         help='Grows rate for every layer, '
              'choices were restricted to used in paper')
     parser.add_argument(
@@ -80,9 +80,6 @@ if __name__ == '__main__':
     parser.add_argument(
         '--nesterov_momentum', '-nm', type=float, default=0.9, metavar='',
         help='Nesterov momentum (default: %(default)s)')
-    parser.add_argument(
-        '--reduction', '-red', type=float, default=0.5, metavar='',
-        help='reduction Theta at transition layer for DenseNets-BC models')
 
     parser.add_argument(
         '--logs', dest='should_save_logs', action='store_true',
