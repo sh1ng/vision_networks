@@ -197,17 +197,6 @@ class SmoothNet:
             output = self.dropout(output)
         return output
 
-    def bottleneck(self, _input, out_features):
-        with tf.variable_scope("bottleneck"):
-            output = self.batch_norm(_input)
-            output = tf.nn.relu(output)
-            inter_features = out_features * 4
-            output = self.conv2d(
-                output, out_features=inter_features, kernel_size=1,
-                padding='VALID')
-            output = self.dropout(output)
-        return output
-
     def add_internal_layer(self, _input, growth_rate):
         _input = _input[:, :, :, -self.look_back*self.growth_rate:]
         """Perform H_l composite function for the layer and after concatenate
@@ -330,10 +319,6 @@ class SmoothNet:
                 if block > 0:
                     output = self.create_tail(output)
                 output = self.add_block(output, growth_rate, layers_per_block)
-
-            # if block != self.total_blocks - 1:
-            #     with tf.variable_scope("Transition_after_block_%d" % block):
-            #         output = self.transition_layer(output)
 
         with tf.variable_scope("Transition_to_classes"):
             logits = self.trainsition_layer_to_classes(output)
