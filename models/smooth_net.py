@@ -231,6 +231,7 @@ class SmoothNet:
         return self.avg_pool(input, k=2)
 
     def trainsition_layer_to_classes(self, _input):
+        _input = _input[:,:,:,-self.look_back * self.growth_rate:]
         """This is last transition to get probabilities by classes. It perform:
         - batch normalization
         - ReLU nonlinearity

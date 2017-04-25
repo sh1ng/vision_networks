@@ -55,7 +55,7 @@ if __name__ == '__main__':
         help='Grows rate for every layer, '
              'choices were restricted to used in paper')
     parser.add_argument(
-        '--look_back', '-lb', type=int, choices=[2, 3, 4, 5, 6, 7, 8, 9, 10],
+        '--look_back', '-lb', type=int,
         default=6,
         help='Grows rate for every layer, '
              'choices were restricted to used in paper')
