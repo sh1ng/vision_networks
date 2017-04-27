@@ -57,8 +57,11 @@ if __name__ == '__main__':
     parser.add_argument(
         '--look_back', '-lb', type=int,
         default=6,
-        help='Grows rate for every layer, '
-             'choices were restricted to used in paper')
+        help='Look back connections')
+    parser.add_argument(
+        '--look_back_decay', '-lbd', type=int,
+        default=0,
+        help='Look back connections')
     parser.add_argument(
         '--depth', '-d', type=int, choices=[40, 100, 190, 250],
         default=40,

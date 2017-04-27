@@ -13,6 +13,7 @@ TF_VERSION = float('.'.join(tf.__version__.split('.')[:2]))
 class SmoothNet:
     def __init__(self, data_provider, growth_rate,
                  look_back,
+                 look_back_decay,
                  depth,
                  total_blocks, keep_prob,
                  weight_decay, nesterov_momentum, model_type, dataset,
@@ -51,6 +52,7 @@ class SmoothNet:
         self.depth = depth
         self.growth_rate = growth_rate
         self.look_back = look_back
+        self.look_back_decay = look_back_decay
         # how many features will be received after first convolution
         # value the same as in the original Torch code
         self.first_output_features = growth_rate * 2
@@ -197,8 +199,8 @@ class SmoothNet:
             output = self.dropout(output)
         return output
 
-    def add_internal_layer(self, _input, growth_rate):
-        _input = _input[:, :, :, -self.look_back*self.growth_rate:]
+    def add_internal_layer(self, _input, growth_rate, _look_back):
+        _input = _input[:, :, :, -_look_back*self.growth_rate:]
         """Perform H_l composite function for the layer and after concatenate
         input with output from composite function.
         """
@@ -218,20 +220,20 @@ class SmoothNet:
             output = tf.concat(3, (_input, comp_out))
         return output
 
-    def add_block(self, _input, growth_rate, layers_per_block):
+    def add_block(self, _input, growth_rate, layers_per_block, block):
         """Add N H_l internal layers"""
         output = _input
         for layer in range(layers_per_block):
             with tf.variable_scope("layer_%d" % layer):
-                output = self.add_internal_layer(output, growth_rate)
+                output = self.add_internal_layer(output, growth_rate, self.look_back - block * self.look_back_decay)
         return output
 
-    def create_tail(self, _input):
-        input = _input[:,:,:,-self.look_back * self.growth_rate:]
+    def create_tail(self, _input, _look_back):
+        input = _input[:,:,:,- _look_back * self.growth_rate:]
         return self.avg_pool(input, k=2)
 
-    def trainsition_layer_to_classes(self, _input):
-        _input = _input[:,:,:,-self.look_back * self.growth_rate:]
+    def trainsition_layer_to_classes(self, _input, _look_back):
+        _input = _input[:,:,:,- _look_back * self.growth_rate:]
         """This is last transition to get probabilities by classes. It perform:
         - batch normalization
         - ReLU nonlinearity
@@ -316,13 +318,14 @@ class SmoothNet:
         # add N required blocks
         for block in range(self.total_blocks):
             with tf.variable_scope("Block_%d" % block):
+                assert (self.look_back - block * self.look_back_decay) > 0
             # last block exist without transition layer
                 if block > 0:
-                    output = self.create_tail(output)
-                output = self.add_block(output, growth_rate, layers_per_block)
+                    output = self.create_tail(output, self.look_back - block * self.look_back_decay)
+                output = self.add_block(output, growth_rate, layers_per_block, block)
 
         with tf.variable_scope("Transition_to_classes"):
-            logits = self.trainsition_layer_to_classes(output)
+            logits = self.trainsition_layer_to_classes(output, self.look_back - (self.total_blocks - 1) * self.look_back_decay)
         prediction = tf.nn.softmax(logits)
 
         # Losses
