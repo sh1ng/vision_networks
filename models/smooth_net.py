@@ -57,7 +57,7 @@ class SmoothNet:
         # value the same as in the original Torch code
         self.first_output_features = growth_rate * 2
         self.total_blocks = total_blocks
-        self.layers_per_block = (depth - (total_blocks + 1)) // total_blocks
+        self.layers_per_block = (depth - 1) // total_blocks
         self.resnet_mode = resnet_mode
         # compression rate at the transition layers
         if not resnet_mode:
