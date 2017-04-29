@@ -63,7 +63,7 @@ if __name__ == '__main__':
         default=0,
         help='Look back connections')
     parser.add_argument(
-        '--depth', '-d', type=int, choices=[40, 100, 190, 250],
+        '--depth', '-d', type=int,
         default=40,
         help='Depth of whole network, restricted to paper choices')
     parser.add_argument(
