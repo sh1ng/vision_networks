@@ -336,8 +336,7 @@ class SmoothNet:
             [tf.nn.l2_loss(var) for var in tf.trainable_variables()])
 
         # optimizer and train step
-        optimizer = tf.train.MomentumOptimizer(
-            self.learning_rate, self.nesterov_momentum, use_nesterov=True)
+        optimizer = tf.train.AdamOptimizer(self.learning_rate, epsilon=0.01)
         self.train_step = optimizer.minimize(
             cross_entropy + l2_loss * self.weight_decay)
 

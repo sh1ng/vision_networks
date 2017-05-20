@@ -5,10 +5,10 @@ from models.smooth_net import SmoothNet
 
 train_params_cifar = {
     'batch_size': 64,
-    'n_epochs': 300,
-    'initial_learning_rate': 0.1,
-    'reduce_lr_epoch_1': 150,  # epochs * 0.5
-    'reduce_lr_epoch_2': 225,  # epochs * 0.75
+    'n_epochs': 100,
+    'initial_learning_rate': 0.001,
+    'reduce_lr_epoch_1': 50,  # epochs * 0.5
+    'reduce_lr_epoch_2': 75,  # epochs * 0.75
     'validation_set': True,
     'validation_split': None,  # None or float
     'shuffle': 'every_epoch',  # None, once_prior_train, every_epoch
